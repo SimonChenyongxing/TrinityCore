@@ -746,7 +746,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
-    //
+    RBAC_PERM_COMMAND_WORLD_CHAT = 1015,
     // custom permissions 1000+
     RBAC_PERM_MAX
 };

@@ -30,7 +30,7 @@
 #include "TransportMgr.h"
 #include "WorldStatePackets.h"
 #include <unordered_set>
-
+#include "Configuration/Config.h"
 enum EventIds
 {
     EVENT_PLAYERS_GUNSHIP_SPAWN     = 22663,
@@ -157,7 +157,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 IsOozeDanceEligible = true;
                 IsNauseaEligible = true;
                 IsOrbWhispererEligible = true;
-                IsFactionBuffActive = true;
+                IsFactionBuffActive = sConfigMgr->GetBoolDefault("IceCrown.Buff.Enable", false);//true;
             }
 
             // A function to help reduce the number of lines for teleporter management.

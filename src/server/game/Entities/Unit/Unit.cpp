@@ -3609,6 +3609,8 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
     {
         if (itr->second == aura)
         {
+            if (aura->GetId() == 48763)
+                return;
             RemoveOwnedAura(itr, removeMode);
             return;
         }

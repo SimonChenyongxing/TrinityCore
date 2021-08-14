@@ -27,7 +27,9 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Transmogrification.h"
 #include "Player.h"
+#include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -37,6 +39,9 @@
 #include "TotemPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "GridNotifiers.h"
+#include "map.h"
+
 
 void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets& targets)
 {
@@ -431,6 +436,19 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     Spell* spell = new Spell(caster, spellInfo, triggerFlag);
     spell->m_cast_count = castCount;                       // set count of casts
     spell->prepare(targets);
+    if (spellId == 100 || spellId== 6178 || spellId == 11578)//6178  11578
+        _player->Update(1000);
+    if (spellId == 49576)
+    {
+        Trinity::ObjectUpdater updater(1000);
+        // for creature
+        TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer  > grid_object_update(updater);
+        // for pets
+        TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer > world_object_update(updater);
+        _player->GetMap()->VisitNearbyCellsOf(_player, grid_object_update, world_object_update);
+        //_player->GetMap()->SendObjectUpdates();
+    } 
+
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& cancelCast)
@@ -678,7 +696,12 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-                data << uint32(item->GetTemplate()->DisplayInfoID);
+            {
+                if (auto const * itemTemplate = sObjectMgr->GetItemTemplate(item->transmog))
+                    data << uint32(itemTemplate->DisplayInfoID);
+                else
+                    data << uint32(item->GetTemplate()->DisplayInfoID);
+            }
             else
                 data << uint32(0);
         }

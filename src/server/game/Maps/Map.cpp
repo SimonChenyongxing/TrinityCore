@@ -803,7 +803,7 @@ void Map::Update(uint32 t_diff)
         player->Update(t_diff);
 
         VisitNearbyCellsOf(player, grid_object_update, world_object_update);
-
+     
         // If player is using far sight or mind vision, visit that object too
         if (WorldObject* viewPoint = player->GetViewpoint())
             VisitNearbyCellsOf(viewPoint, grid_object_update, world_object_update);
@@ -858,7 +858,7 @@ void Map::Update(uint32 t_diff)
 
         VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
     }
-
+ 
     for (_transportsUpdateIter = _transports.begin(); _transportsUpdateIter != _transports.end();)
     {
         WorldObject* obj = *_transportsUpdateIter;
