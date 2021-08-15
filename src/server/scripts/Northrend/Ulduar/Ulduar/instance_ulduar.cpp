@@ -496,8 +496,8 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
-                        if (GetBossState(DATA_FLAME_LEVIATHAN) == DONE)
-                            gameObject->SetGoState(GO_STATE_DESTROYED);
+                        //if (GetBossState(DATA_FLAME_LEVIATHAN) == DONE)
+                            gameObject->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();
@@ -1039,7 +1039,8 @@ class instance_ulduar : public InstanceMapScript
                 // Leviathan doors are set to DOOR_TYPE_ROOM except the one it uses to enter the room
                 // which has to be set to DOOR_TYPE_PASSAGE
                 if (door->GetEntry() == GO_LEVIATHAN_DOOR && door->GetPositionX() > 400.f)
-                    door->SetGoState(GetBossState(DATA_FLAME_LEVIATHAN) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                    //door->SetGoState(GetBossState(DATA_FLAME_LEVIATHAN) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                    door->SetGoState(GO_STATE_ACTIVE);
                 else
                     InstanceScript::UpdateDoorState(door);
             }
