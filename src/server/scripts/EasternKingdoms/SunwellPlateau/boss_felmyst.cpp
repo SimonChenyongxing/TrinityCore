@@ -40,6 +40,7 @@ enum Yells
     YELL_BERSERK                                  = 4,
     YELL_DEATH                                    = 5,
   //YELL_KALECGOS                                 = 6, Not used. After felmyst's death spawned and say this
+    EMOTE_BREATH = 7,
 };
 
 enum Spells
@@ -108,6 +109,13 @@ enum EventFelmyst
     EVENT_SUMMON_DEAD,
     EVENT_SUMMON_FOG
 };
+
+enum MiscNPCs
+{
+    NPC_TRIGGER_LEFT = 25357,
+    NPC_TRIGGER_RIGHT = 25358
+};
+
 
 class boss_felmyst : public CreatureScript
 {
@@ -214,14 +222,14 @@ public:
             {
                 float x, y, z;
                 unitCaster->GetPosition(x, y, z);
-                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
-                {
-                    summon->SetMaxHealth(unitCaster->GetMaxHealth());
-                    summon->SetHealth(unitCaster->GetMaxHealth());
+                /*if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
+                //{
+                 //   summon->SetMaxHealth(unitCaster->GetMaxHealth());
+                /    summon->SetHealth(unitCaster->GetMaxHealth());
                     summon->CastSpell(summon, SPELL_FOG_CHARM, true);
                     summon->CastSpell(summon, SPELL_FOG_CHARM2, true);
                 }
-                Unit::DealDamage(me, unitCaster, unitCaster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                Unit::DealDamage(me, unitCaster, unitCaster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);*/
             }
         }
 
@@ -232,6 +240,7 @@ public:
                 summon->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random));
                 DoZoneInCombat(summon);
                 summon->CastSpell(summon, SPELL_DEAD_PASSIVE, true);
+                summon->DespawnOrUnsummon();
             }
         }
 
@@ -347,26 +356,31 @@ public:
                     break;
                 case 5:
                 {
-                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 150, true);
-                    if (!target)
-                        target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_PLAYER_GUID));
+                    if ((uiBreathCount == 0) | (uiBreathCount == 2))
+                        if (Unit* target = GetClosestCreatureWithEntry(me, NPC_TRIGGER_LEFT, 1000.0f, true))
+                        {
+                            breathX = target->GetPositionX();
+                            breathY = target->GetPositionY();
+                            float x, y, z;
+                            target->GetContactPoint(me, x, y, z, 2);
+                            me->GetMotionMaster()->MovePoint(0, x, y, z + 2);
+                        }
 
-                    if (!target)
-                    {
-                        EnterEvadeMode();
-                        return;
-                    }
-
-                    breathX = target->GetPositionX();
-                    breathY = target->GetPositionY();
-                    float x, y, z;
-                    target->GetContactPoint(me, x, y, z, 70);
-                    me->GetMotionMaster()->MovePoint(0, x, y, z+10);
+                    if ((uiBreathCount == 1) | (uiBreathCount == 3))
+                        if (Unit* target = GetClosestCreatureWithEntry(me, NPC_TRIGGER_RIGHT, 1000.0f, true))
+                        {
+                            breathX = target->GetPositionX();
+                            breathY = target->GetPositionY();
+                            float x, y, z;
+                            target->GetContactPoint(me, x, y, z, 2);
+                            me->GetMotionMaster()->MovePoint(0, x, y, z + 2);
+                        }
                     break;
                 }
                 case 6:
                     me->SetFacingTo(me->GetAbsoluteAngle(breathX, breathY));
                     //DoTextEmote("takes a deep breath.", nullptr);
+                    Talk(EMOTE_BREATH);
                     events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10s);
                     break;
                 case 7:
@@ -500,7 +514,7 @@ public:
                 if (entry == NPC_VAPOR_TRAIL && phase == PHASE_FLIGHT)
                 {
                     (*i)->GetPosition(x, y, z);
-                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                    //me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 }
                 (*i)->SetVisible(false);
                 (*i)->DespawnOrUnsummon();
